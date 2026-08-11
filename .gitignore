@@ -1,0 +1,7 @@
+target/
+release/
+dist/
+*.pdf
+*.jar
+*.exe
+nbproject/private/

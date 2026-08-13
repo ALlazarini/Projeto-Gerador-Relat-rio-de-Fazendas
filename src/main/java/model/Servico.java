@@ -39,4 +39,8 @@ public class Servico {
         this.observacoes = observacoes;
     }
     
+    public void setTipo(TipoServico tipo) {
+    this.tipo = tipo;
+    }
+    
 }

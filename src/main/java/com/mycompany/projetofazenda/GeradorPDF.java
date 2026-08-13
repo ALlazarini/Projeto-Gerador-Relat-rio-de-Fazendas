@@ -5,23 +5,34 @@
 
 package com.mycompany.projetofazenda;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfWriter;
-
-import java.io.FileOutputStream;
 /**
  *
  * @author ALlazarini -> on GitHub
  */
+
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
+import model.PlanejamentoAnual;
+import model.PlanejamentoMensal;
+import model.Servico;
+
+import java.io.FileOutputStream;
+import java.time.format.DateTimeFormatter;
+
 public class GeradorPDF {
-    
-    
 
-     public static void gerar(Relatorio r) throws Exception {
+    public static void gerar(
+            String nomeFazenda,
+            PlanejamentoAnual planejamento
+    ) throws Exception {
 
-
-        String nomeArquivo = "Relatorio_" + r.getFazenda() + ".pdf";
+        String nomeArquivo =
+                "Planejamento_" +
+                nomeFazenda.replaceAll("[\\\\/:*?\"<>|]", "_") +
+                "_" +
+                planejamento.getAno() +
+                ".pdf";
 
         Document documento = new Document();
 
@@ -32,23 +43,33 @@ public class GeradorPDF {
 
         documento.open();
 
-        // TÍTULO
-        documento.add(
-                new Paragraph("RELATÓRIO DE VISITA")
-        );
+        // =========================
+        // CABEÇALHO
+        // =========================
 
         documento.add(
-                new Paragraph(" ")
-        );
-
-        // FAZENDA
-        documento.add(
-                new Paragraph("FAZENDA")
+                new Paragraph("PLANEJAMENTO ANUAL")
         );
 
         documento.add(
                 new Paragraph(
-                        "Nome da fazenda: " + r.getFazenda()
+                        "Fazenda: " + nomeFazenda
+                )
+        );
+
+        documento.add(
+                new Paragraph(
+                        "Ano: " + planejamento.getAno()
+                )
+        );
+
+        DateTimeFormatter formato =
+                DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        documento.add(
+                new Paragraph(
+                        "Data de criação: "
+                        + planejamento.getDataCriacao().format(formato)
                 )
         );
 
@@ -56,55 +77,125 @@ public class GeradorPDF {
                 new Paragraph(" ")
         );
 
-        // TREINAMENTOS
-        documento.add(
-                new Paragraph("TREINAMENTOS")
-        );
+        // =========================
+        // MESES
+        // =========================
 
-        if (r.isNr31()) {
-            documento.add(new Paragraph("NR31"));
+        String[] nomesMeses = {
+            "JANEIRO",
+            "FEVEREIRO",
+            "MARÇO",
+            "ABRIL",
+            "MAIO",
+            "JUNHO",
+            "JULHO",
+            "AGOSTO",
+            "SETEMBRO",
+            "OUTUBRO",
+            "NOVEMBRO",
+            "DEZEMBRO"
+        };
+
+        for (int i = 0; i < planejamento.getMeses().size(); i++) {
+
+            PlanejamentoMensal mes =
+                    planejamento.getMeses().get(i);
+
+            documento.add(
+                    new Paragraph(
+                            nomesMeses[i]
+                    )
+            );
+
+            documento.add(
+                    new Paragraph(
+                            "----------------------------------------"
+                    )
+            );
+
+            if (mes.getServicos().isEmpty()) {
+
+                documento.add(
+                        new Paragraph(
+                                "Nenhum serviço planejado."
+                        )
+                );
+
+            } else {
+
+                for (Servico servico : mes.getServicos()) {
+
+                    documento.add(
+                            new Paragraph(
+                                    "Serviço: "
+                                    + servico.getTipo().getDescricao()
+                            )
+                    );
+
+                    int carga =
+                            servico.getTipo().getCargaHoraria();
+
+                    if (carga > 0) {
+                        documento.add(
+                                new Paragraph(
+                                        "Carga horária: "
+                                        + carga
+                                        + " horas"
+                                )
+                        );
+                    } else {
+                        documento.add(
+                                new Paragraph(
+                                        "Carga horária: "
+                                        + "Não se aplica"
+                                )
+                        );
+                    }
+
+                    documento.add(
+                            new Paragraph(
+                                    "Local: "
+                                    + servico.getLocal()
+                            )
+                    );
+
+                    documento.add(
+                            new Paragraph(
+                                    "Observações: "
+                                    + servico.getObservacoes()
+                            )
+                    );
+
+                    documento.add(
+                            new Paragraph(" ")
+                    );
+                }
+            }
+
+            documento.add(
+                    new Paragraph(" ")
+            );
         }
 
-        if (r.isNr35()) {
-            documento.add(new Paragraph("NR35"));
-        }
-
-        if (r.isNr06()) {
-            documento.add(new Paragraph("NR06"));
-        }
-
-        if (r.isNr09()) {
-            documento.add(new Paragraph("NR09"));
-        }
-
-        documento.add(
-                new Paragraph("OBS: " + r.getObsTreinamento())
-        );
-
-        documento.add(
-                new Paragraph(" ")
-        );
-
-        // LOCAL DE VISITA
-        documento.add(
-                new Paragraph("LOCAL DE VISITA")
-        );
+        // =========================
+        // INFORMAÇÕES GERAIS
+        // =========================
 
         documento.add(
                 new Paragraph(
-                        "Tipo: " + r.getTipoLocal()
+                        "INFORMAÇÕES GERAIS"
                 )
         );
 
         documento.add(
                 new Paragraph(
-                        "Nome: " + r.getNomeLocal()
+                        "Sobre colaboradores:"
                 )
         );
 
         documento.add(
                 new Paragraph(
-                        "OBS: " + r.getObsLocal()
+                        planejamento.getInformacoesColaboradores()
                 )
         );
 
@@ -112,53 +203,15 @@ public class GeradorPDF {
                 new Paragraph(" ")
         );
 
-        // COLABORADOR
-        documento.add(
-                new Paragraph("COLABORADORES")
-        );
-
         documento.add(
                 new Paragraph(
-                        "Com EPI: " + (r.isComEpi() ? "Sim" : "Não")
+                        "Gerais:"
                 )
         );
 
         documento.add(
                 new Paragraph(
-                        "Colaborador: " + r.getColaborador()
-                )
-        );
-
-        documento.add(
-                new Paragraph(
-                        "Função: " + r.getFuncao()
-                )
-        );
-
-        documento.add(
-                new Paragraph(
-                        "Atividade: " + r.getAtividade()
-                )
-        );
-
-        documento.add(
-                new Paragraph(
-                        "OBS: " + r.getObsColaborador()
-                )
-        );
-
-        documento.add(
-                new Paragraph(" ")
-        );
-
-        // OUTROS
-        documento.add(
-                new Paragraph("OUTRAS OBSERVAÇÕES")
-        );
-
-        documento.add(
-                new Paragraph(
-                        r.getOutros()
+                        planejamento.getInformacoesGerais()
                 )
         );
 

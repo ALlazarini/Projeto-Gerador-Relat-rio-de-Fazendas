@@ -13,12 +13,19 @@ package com.mycompany.projetofazenda;
 import com.lowagie.text.Document;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.Image;
+
 import model.PlanejamentoAnual;
 import model.PlanejamentoMensal;
 import model.Servico;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class GeradorPDF {
 
@@ -29,7 +36,7 @@ public class GeradorPDF {
 
         String nomeArquivo =
                 "Planejamento_" +
-                nomeFazenda.replaceAll("[\\\\/:*?\"<>|]", "_") +
+                limparNomeArquivo(nomeFazenda) +
                 "_" +
                 planejamento.getAno() +
                 ".pdf";
@@ -43,28 +50,20 @@ public class GeradorPDF {
 
         documento.open();
 
-        // =========================
-        // CABEÇALHO
-        // =========================
+        DateTimeFormatter formato =
+                DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         documento.add(
                 new Paragraph("PLANEJAMENTO ANUAL")
         );
 
         documento.add(
-                new Paragraph(
-                        "Fazenda: " + nomeFazenda
-                )
+                new Paragraph("Fazenda: " + nomeFazenda)
         );
 
         documento.add(
-                new Paragraph(
-                        "Ano: " + planejamento.getAno()
-                )
+                new Paragraph("Ano: " + planejamento.getAno())
         );
-
-        DateTimeFormatter formato =
-                DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         documento.add(
                 new Paragraph(
@@ -76,10 +75,6 @@ public class GeradorPDF {
         documento.add(
                 new Paragraph(" ")
         );
-
-        // =========================
-        // MESES
-        // =========================
 
         String[] nomesMeses = {
             "JANEIRO",
@@ -102,28 +97,32 @@ public class GeradorPDF {
                     planejamento.getMeses().get(i);
 
             documento.add(
-                    new Paragraph(
-                            nomesMeses[i]
-                    )
+                    new Paragraph(nomesMeses[i])
             );
 
             documento.add(
-                    new Paragraph(
-                            "----------------------------------------"
-                    )
+                    new Paragraph("----------------------------------------")
             );
 
-            if (mes.getServicos().isEmpty()) {
+            List<Servico> servicosOrdenados =
+                    ordenarServicosPorData(mes);
+
+            if (servicosOrdenados.isEmpty()) {
 
                 documento.add(
-                        new Paragraph(
-                                "Nenhum serviço planejado."
-                        )
+                        new Paragraph("Nenhum serviço planejado.")
                 );
 
             } else {
 
-                for (Servico servico : mes.getServicos()) {
+                for (Servico servico : servicosOrdenados) {
+
+                    documento.add(
+                            new Paragraph(
+                                    "Data: "
+                                    + servico.getDataServico().format(formato)
+                            )
+                    );
 
                     documento.add(
                             new Paragraph(
@@ -146,8 +145,7 @@ public class GeradorPDF {
                     } else {
                         documento.add(
                                 new Paragraph(
-                                        "Carga horária: "
-                                        + "Não se aplica"
+                                        "Carga horária: Não se aplica"
                                 )
                         );
                     }
@@ -177,25 +175,82 @@ public class GeradorPDF {
             );
         }
 
-        // =========================
-        // INFORMAÇÕES GERAIS
-        // =========================
+        documento.add(
+                new Paragraph("INFORMAÇÕES SOBRE COLABORADORES")
+        );
 
         documento.add(
-                new Paragraph(
-                        "INFORMAÇÕES GERAIS"
-                )
+                new Paragraph("----------------------------------------")
+        );
+
+        if (planejamento.getInformacoesColaboradores() == null
+                || planejamento.getInformacoesColaboradores().trim().isEmpty()) {
+
+            documento.add(
+                    new Paragraph("Nenhuma informação registrada.")
+            );
+
+        } else {
+
+            documento.add(
+                    new Paragraph(
+                            planejamento.getInformacoesColaboradores()
+                    )
+            );
+        }
+
+        documento.close();
+    }
+
+    public static void gerarMensal(
+            String nomeFazenda,
+            PlanejamentoMensal mes,
+            int ano,
+            String nomeMes,
+            String informacoesColaboradores
+    ) throws Exception {
+
+        String nomeArquivo =
+                "Relatorio_Mensal_" +
+                limparNomeArquivo(nomeFazenda) +
+                "_" +
+                nomeMes +
+                "_" +
+                ano +
+                ".pdf";
+
+        Document documento = new Document();
+
+        PdfWriter.getInstance(
+                documento,
+                new FileOutputStream(nomeArquivo)
+        );
+
+        documento.open();
+
+        DateTimeFormatter formato =
+                DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        documento.add(
+                new Paragraph("RELATÓRIO MENSAL")
+        );
+
+        documento.add(
+                new Paragraph("Fazenda: " + nomeFazenda)
+        );
+
+        documento.add(
+                new Paragraph("Mês: " + nomeMes)
+        );
+
+        documento.add(
+                new Paragraph("Ano: " + ano)
         );
 
         documento.add(
                 new Paragraph(
-                        "Sobre colaboradores:"
-                )
-        );
-
-        documento.add(
-                new Paragraph(
-                        planejamento.getInformacoesColaboradores()
+                        "Data de geração: "
+                        + LocalDate.now().format(formato)
                 )
         );
 
@@ -204,19 +259,210 @@ public class GeradorPDF {
         );
 
         documento.add(
-                new Paragraph(
-                        "Gerais:"
-                )
+                new Paragraph("SERVIÇOS REALIZADOS / PLANEJADOS")
         );
 
         documento.add(
-                new Paragraph(
-                        planejamento.getInformacoesGerais()
-                )
+                new Paragraph("----------------------------------------")
         );
+
+        documento.add(
+                new Paragraph(" ")
+        );
+
+        List<Servico> servicosOrdenados =
+                ordenarServicosPorData(mes);
+
+        if (servicosOrdenados.isEmpty()) {
+
+            documento.add(
+                    new Paragraph(
+                            "Nenhum serviço registrado para este mês."
+                    )
+            );
+
+        } else {
+
+            LocalDate dataAtual = null;
+
+            for (Servico servico : servicosOrdenados) {
+
+                if (!servico.getDataServico().equals(dataAtual)) {
+
+                    dataAtual = servico.getDataServico();
+
+                    documento.add(
+                            new Paragraph(" ")
+                    );
+
+                    documento.add(
+                            new Paragraph(
+                                    "DIA " + dataAtual.format(formato)
+                            )
+                    );
+
+                    documento.add(
+                            new Paragraph("----------------------------------------")
+                    );
+                }
+
+                documento.add(
+                        new Paragraph(
+                                "Serviço: "
+                                + servico.getTipo().getDescricao()
+                        )
+                );
+
+                int carga =
+                        servico.getTipo().getCargaHoraria();
+
+                if (carga > 0) {
+                    documento.add(
+                            new Paragraph(
+                                    "Carga horária: "
+                                    + carga
+                                    + " horas"
+                            )
+                    );
+                } else {
+                    documento.add(
+                            new Paragraph(
+                                    "Carga horária: Não se aplica"
+                            )
+                    );
+                }
+
+                documento.add(
+                        new Paragraph(
+                                "Local: "
+                                + servico.getLocal()
+                        )
+                );
+
+                documento.add(
+                        new Paragraph(
+                                "Observações: "
+                                + servico.getObservacoes()
+                        )
+                );
+
+                adicionarFotosDoServico(
+                        documento,
+                        servico
+                );
+
+                documento.add(
+                        new Paragraph(" ")
+                );
+            }
+        }
+
+        documento.add(
+                new Paragraph(" ")
+        );
+
+        documento.add(
+                new Paragraph("INFORMAÇÕES SOBRE COLABORADORES")
+        );
+
+        documento.add(
+                new Paragraph("----------------------------------------")
+        );
+
+        if (informacoesColaboradores == null
+                || informacoesColaboradores.trim().isEmpty()) {
+
+            documento.add(
+                    new Paragraph(
+                            "Nenhuma informação registrada."
+                    )
+            );
+
+        } else {
+
+            documento.add(
+                    new Paragraph(
+                            informacoesColaboradores
+                    )
+            );
+        }
 
         documento.close();
     }
-}
-    
 
+    private static List<Servico> ordenarServicosPorData(
+            PlanejamentoMensal mes
+    ) {
+
+        List<Servico> servicosOrdenados =
+                new ArrayList<>(mes.getServicos());
+
+        servicosOrdenados.sort(
+                Comparator.comparing(Servico::getDataServico)
+        );
+
+        return servicosOrdenados;
+    }
+
+    private static void adicionarFotosDoServico(
+            Document documento,
+            Servico servico
+    ) throws Exception {
+
+        if (servico.getCaminhosFotos() == null
+                || servico.getCaminhosFotos().isEmpty()) {
+
+            documento.add(
+                    new Paragraph("Fotos: nenhuma foto adicionada.")
+            );
+
+            return;
+        }
+
+        documento.add(
+                new Paragraph("Fotos:")
+        );
+
+        for (String caminhoFoto : servico.getCaminhosFotos()) {
+
+            File arquivoFoto =
+                    new File(caminhoFoto);
+
+            if (!arquivoFoto.exists()) {
+
+                documento.add(
+                        new Paragraph(
+                                "Foto não encontrada: "
+                                + caminhoFoto
+                        )
+                );
+
+                continue;
+            }
+
+            Image imagem =
+                    Image.getInstance(caminhoFoto);
+
+            imagem.scaleToFit(
+                    250,
+                    180
+            );
+
+            documento.add(imagem);
+
+            documento.add(
+                    new Paragraph(" ")
+            );
+        }
+    }
+
+    private static String limparNomeArquivo(
+            String nome
+    ) {
+
+        return nome.replaceAll(
+                "[\\\\/:*?\"<>|]",
+                "_"
+        );
+    }
+}

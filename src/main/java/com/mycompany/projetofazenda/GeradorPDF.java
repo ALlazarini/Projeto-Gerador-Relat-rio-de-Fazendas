@@ -26,12 +26,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.io.InputStream;
 
 public class GeradorPDF {
 
     public static void gerar(
+            
             String nomeFazenda,
             PlanejamentoAnual planejamento
+            
     ) throws Exception {
 
         String nomeArquivo =
@@ -49,9 +52,10 @@ public class GeradorPDF {
         );
 
         documento.open();
+        
+        adicionarLogo(documento);
 
-        DateTimeFormatter formato =
-                DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         documento.add(
                 new Paragraph("PLANEJAMENTO ANUAL")
@@ -203,6 +207,7 @@ public class GeradorPDF {
     }
 
     public static void gerarMensal(
+            
             String nomeFazenda,
             PlanejamentoMensal mes,
             int ano,
@@ -227,21 +232,20 @@ public class GeradorPDF {
         );
 
         documento.open();
+        
+        adicionarLogo(documento);
 
         DateTimeFormatter formato =
                 DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         documento.add(
-                new Paragraph("RELATÓRIO MENSAL")
-        );
+                new Paragraph("RELATÓRIO MENSAL - " + nomeMes.toUpperCase())
+                );
 
         documento.add(
                 new Paragraph("Fazenda: " + nomeFazenda)
         );
 
-        documento.add(
-                new Paragraph("Mês: " + nomeMes)
-        );
 
         documento.add(
                 new Paragraph("Ano: " + ano)
@@ -389,6 +393,43 @@ public class GeradorPDF {
 
         documento.close();
     }
+    
+    private static void adicionarLogo(Document documento) {
+
+    try {
+        InputStream logoStream =
+                GeradorPDF.class.getResourceAsStream(
+                        "/imagens/LOGO.png"
+                );
+
+        if (logoStream == null) {
+    System.out.println("Logo não encontrada em /imagens/LOGO.png");
+    return;
+}
+
+        byte[] bytesLogo =
+                logoStream.readAllBytes();
+
+        Image logo =
+                Image.getInstance(bytesLogo);
+
+        logo.scaleToFit(180, 90);
+
+        logo.setAlignment(Image.ALIGN_CENTER);
+
+        documento.add(logo);
+
+        documento.add(
+                new Paragraph(" ")
+        );
+
+    } catch (Exception e) {
+        System.out.println(
+                "Não foi possível carregar a logo: "
+                + e.getMessage()
+        );
+    }
+}
 
     private static List<Servico> ordenarServicosPorData(
             PlanejamentoMensal mes

@@ -5,3 +5,5 @@ dist/
 *.jar
 *.exe
 nbproject/private/
+src/main/resources/imagens/
+nbactions.xml

@@ -461,7 +461,7 @@ inicializando = true;
 
         jLabel14.setText("Data do Serviço");
 
-        txtDataServico.setText("dd/MM/yyyy");
+        txtDataServico.setText("dd/mm/yyyy");
         txtDataServico.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDataServicoActionPerformed(evt);
@@ -690,7 +690,7 @@ inicializando = true;
     }
 
     DateTimeFormatter formatoData =
-        DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter.ofPattern("dd/mm/yyyy");
 
     LocalDate dataServico;
 

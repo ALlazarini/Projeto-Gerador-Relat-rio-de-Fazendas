@@ -1,192 +1,193 @@
-# Relato Rural
+<h1>APP Gerador de Relatórios Rurais</h1>
 
-Sistema desktop desenvolvido em Java para auxiliar na organização de planejamentos e relatórios de serviços realizados em propriedades rurais.
+<p>
+  Sistema desktop desenvolvido em Java para criação de planejamentos e relatórios de serviços em fazendas.
+</p>
 
-O sistema permite cadastrar serviços por fazenda, mês e ano, informar data de realização, local, observações, informações sobre colaboradores e gerar relatórios em PDF nos formatos mensal e anual.
+<p>
+  O projeto permite cadastrar serviços por mês, organizar um planejamento anual e gerar relatórios em PDF,
+  tanto mensais quanto anuais.
+</p>
 
----
+<hr>
 
-## Funcionalidades
+<h2>Funcionalidades</h2>
 
-- Cadastro do nome da fazenda
-- Seleção de mês e ano
-- Cadastro de serviços por mês
-- Data individual para cada serviço
-- Local de realização do serviço
-- Observações por serviço
-- Informações sobre colaboradores
-- Edição de serviços cadastrados
-- Inserção de fotos vinculadas ao serviço
-- Remoção/limpeza de fotos selecionadas
-- Geração de relatório mensal em PDF
-- Geração de planejamento/relatório anual em PDF
-- Organização dos serviços por data nos relatórios
-- Suporte a logo nos relatórios, quando disponível localmente
+<ul>
+  <li>Cadastro do nome da fazenda</li>
+  <li>Seleção de mês e ano</li>
+  <li>Cadastro de serviços por mês</li>
+  <li>Registro da data do serviço</li>
+  <li>Registro do local de realização</li>
+  <li>Registro de observações</li>
+  <li>Registro de informações sobre colaboradores</li>
+  <li>Adição de fotos aos serviços</li>
+  <li>Geração de relatório mensal em PDF</li>
+  <li>Geração de planejamento anual em PDF</li>
+  <li>Relatório anual em formato de tabela, com 3 meses por linha</li>
+  <li>Relatório mensal com listagem dos serviços e imagens anexadas</li>
+  <li>Gerenciamento de tipos de serviço</li>
+  <li>Carga horária automática de acordo com o tipo de serviço</li>
+</ul>
 
-###Observação sobre logo
+<hr>
 
-O sistema possui suporte para adicionar uma logo nos relatórios em PDF.
+<h2>Tecnologias utilizadas</h2>
 
-A logo deve estar localmente em:
+<ul>
+  <li>Java 17</li>
+  <li>Java Swing</li>
+  <li>Maven</li>
+  <li>OpenPDF</li>
+  <li>FlatLaf</li>
+  <li>Gson</li>
+</ul>
 
-src/main/resources/imagens/LOGO.png
+<hr>
 
-Por motivos de privacidade e controle de uso da identidade visual do cliente, a pasta de imagens pode ser mantida fora do versionamento do Git.
+<h2>Estrutura principal do projeto</h2>
 
----
+<pre><code>src/main/java/
+├── com/mycompany/projetofazenda/
+│   ├── MainHUD.java
+│   ├── GeradorPDF.java
+│   ├── GerenciarServicosDialog.java
+│   └── ProjetoFazenda.java
+├── model/
+│   ├── Fazenda.java
+│   ├── PlanejamentoAnual.java
+│   ├── PlanejamentoMensal.java
+│   ├── Servico.java
+│   └── TipoServico.java
+└── service/
+    ├── PlanejamentoService.java
+    └── TipoServicoRepositoryJson.java</code></pre>
 
-## Serviços disponíveis
+<hr>
 
-O sistema conta com uma lista pré-definida de serviços, incluindo:
+<h2>Relatórios gerados</h2>
 
-- Diagnóstico mensal
-- PGR
-- PCMSO
-- LTCAT
-- PPP
-- AEP
-- AET
-- eSocial
-- Treinamento CIPATR
-- Treinamento de Defensivos Agrícolas
-- Operação segura de máquinas e implementos
-- Máquinas autopropelidas e implementos
-- Motosserra, motopoda e similares
-- Espaço Confinado
-- Trabalho em Altura
-- NR31
-- Primeiros Socorros
-- Inspeção de Caldeira
-- Legislação
-- EPI's
-- Ergonomia
-- Elétrica - NR10
+<h3>Relatório anual</h3>
 
-Alguns serviços possuem carga horária associada automaticamente.
+<p>
+  O relatório anual apresenta o planejamento dos serviços separados por mês.
+</p>
 
----
+<p>
+  O arquivo é gerado em PDF no formato paisagem, com os meses organizados em tabelas de 3 colunas.
+</p>
 
-## Relatórios
+<p>Exemplo de organização:</p>
 
-### Relatório mensal
+<pre><code>Janeiro  | Fevereiro | Março
+Abril    | Maio      | Junho
+Julho    | Agosto    | Setembro
+Outubro  | Novembro  | Dezembro</code></pre>
 
-O relatório mensal é gerado com base no mês e ano selecionados na interface.
+<p>
+  Cada mês exibe os serviços previstos e seus respectivos locais.
+</p>
 
-Ele apresenta:
+<h3>Relatório mensal</h3>
 
-- Nome da fazenda
-- Mês e ano
-- Data de geração
-- Serviços organizados por dia
-- Tipo do serviço
-- Carga horária
-- Local
-- Observações
-- Fotos vinculadas ao serviço
-- Informações sobre colaboradores
+<p>
+  O relatório mensal apresenta os serviços de um mês específico, contendo:
+</p>
 
-Exemplo de organização:
+<ul>
+  <li>Data do serviço</li>
+  <li>Tipo do serviço</li>
+  <li>Carga horária</li>
+  <li>Local</li>
+  <li>Observações</li>
+  <li>Fotos adicionadas</li>
+  <li>Informações sobre colaboradores</li>
+</ul>
 
-```text
-RELATÓRIO MENSAL - JUNHO
+<hr>
 
-DIA 10/06/2026
-Serviço: NR31
-Carga horária: 24 horas
-Local: Sala de treinamento
-Observações: ...
+<h2>Como executar pelo NetBeans</h2>
 
-Fotos:
-[imagens do serviço]
+<ol>
+  <li>Abrir o projeto no NetBeans</li>
+  <li>Garantir que o Java 17 esteja configurado</li>
+  <li>Executar a classe <code>MainHUD.java</code></li>
+</ol>
 
-DIA 25/06/2026
-Serviço: Máquinas autopropelidas e implementos
-Carga horária: 24 horas
-Local: Pátio
-Observações: ...
+<hr>
 
-### Relatório anual
+<h2>Como gerar o arquivo .jar</h2>
 
-O relatório anual apresenta uma visão geral do planejamento/serviços do ano inteiro.
+<p>Na pasta raiz do projeto, executar:</p>
 
-Ele apresenta:
+<pre><code>mvn clean package</code></pre>
 
-- Nome da fazenda
-- Ano do planejamento
-- Data de criação do relatório
-- Serviços separados por mês
-- Serviços ordenados pela data de realização
-- Tipo do serviço
-- Carga horária
-- Local de realização
-- Observações do serviço
-- Informações sobre colaboradores
+<p>O arquivo <code>.jar</code> será gerado dentro da pasta:</p>
 
-O relatório anual **não inclui fotos**, para manter o arquivo mais leve e servir como uma visão geral do ano.
+<pre><code>target/</code></pre>
 
-Exemplo de organização:
+<hr>
 
-```text
-PLANEJAMENTO ANUAL
+<h2>Como gerar o executável para Windows</h2>
 
-Fazenda: Fazenda Exemplo
-Ano: 2026
-Data de criação: 17/08/2026
+<p>Primeiro, copiar as dependências do projeto:</p>
 
-JANEIRO
-----------------------------------------
-Data: 10/01/2026
-Serviço: NR31
-Carga horária: 24 horas
-Local: Sala de treinamento
-Observações: Treinamento realizado com os colaboradores.
+<pre><code>mvn dependency:copy-dependencies -DoutputDirectory=target/dependency</code></pre>
 
-Data: 25/01/2026
-Serviço: Máquinas autopropelidas e implementos
-Carga horária: 24 horas
-Local: Pátio principal
-Observações: Capacitação prática realizada no local.
+<p>Criar a pasta de empacotamento:</p>
 
-FEVEREIRO
-----------------------------------------
-Nenhum serviço planejado.
+<pre><code>New-Item -ItemType Directory -Force -Path .\target\app</code></pre>
 
-INFORMAÇÕES SOBRE COLABORADORES
-----------------------------------------
-Colaboradores participaram dos treinamentos conforme planejamento mensal.
+<p>Copiar o <code>.jar</code> principal:</p>
 
-##Tecnologias utilizadas
+<pre><code>Copy-Item .\target\ProjetoFazenda-1.0-SNAPSHOT.jar .\target\app\</code></pre>
 
-Java 17
-Java Swing
-Maven
-OpenPDF
-FlatLaf
+<p>Copiar as dependências:</p>
 
-##Estrutura geral do projeto
+<pre><code>Copy-Item .\target\dependency\*.jar .\target\app\</code></pre>
 
-	src/main/java
-	├── com/mycompany/projetofazenda
-	│   ├── MainHUD.java
-	│   └── GeradorPDF.java
-	│
-	├── model
-	│   ├── TipoServico.java
-	│   ├── Servico.java
-	│   ├── PlanejamentoMensal.java
-	│   ├── PlanejamentoAnual.java
-	│   └── Fazenda.java
-	│
-	└── service
-	    └── PlanejamentoService.java
+<p>Gerar o aplicativo desktop:</p>
 
-##Geração do aplicativo para distribuição
+<pre><code>jpackage --type app-image --input .\target\app --name PlanejamentoFGA --main-jar ProjetoFazenda-1.0-SNAPSHOT.jar --main-class com.mycompany.projetofazenda.MainHUD --dest .\release</code></pre>
 
-O projeto pode ser empacotado usando jpackage.
+<p>O executável será gerado em:</p>
 
-Exemplo:
+<pre><code>release/PlanejamentoFGA/PlanejamentoFGA.exe</code></pre>
 
-jpackage --type app-image --name "Relato Rural" --input release --main-jar ProjetoFazenda-1.0-SNAPSHOT.jar --main-class com.mycompany.projetofazenda.MainHUD --dest dist
+<hr>
 
-A pasta gerada em dist/Relato Rural deve ser enviada inteira ao cliente, não apenas o arquivo .exe.
+<h2>Como compactar para envio</h2>
 
+<p>Após gerar o executável, compactar a pasta inteira:</p>
+
+<pre><code>Compress-Archive -Path .\release\PlanejamentoFGA -DestinationPath .\PlanejamentoFGA.zip -Force</code></pre>
+
+<p>
+  É importante enviar a pasta completa compactada. O arquivo <code>.exe</code> não deve ser enviado sozinho,
+  pois depende das pastas internas geradas pelo <code>jpackage</code>.
+</p>
+
+<hr>
+
+<h2>Compatibilidade</h2>
+
+<p>
+  O sistema é um aplicativo desktop Java/Swing, empacotado para Windows.
+</p>
+
+<h2>Observações</h2>
+
+<ul>
+  <li>Os relatórios em PDF são gerados na máquina local do usuário.</li>
+  <li>As fotos adicionadas aos serviços são usadas na geração do relatório mensal.</li>
+  <li>A logo do sistema é carregada a partir da pasta de recursos do projeto.</li>
+  <li>O executável deve ser utilizado junto com as pastas internas geradas pelo empacotamento.</li>
+</ul>
+
+<hr>
+
+<h2>Autor</h2>
+
+<p>
+  Desenvolvido por <strong>André Lemos Lazarini</strong>.
+</p>

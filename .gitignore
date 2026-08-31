@@ -1,6 +1,7 @@
 target/
 release/
 dist/
+*.zip
 *.pdf
 *.jar
 *.exe

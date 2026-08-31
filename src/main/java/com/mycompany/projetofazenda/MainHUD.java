@@ -9,6 +9,8 @@ import model.Servico;
 import model.PlanejamentoMensal;
 import model.PlanejamentoAnual;
 import service.PlanejamentoService;
+import service.TipoServicoRepositoryJson;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -18,6 +20,13 @@ import java.time.format.DateTimeParseException;
 import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.UIManager;
 import java.awt.Font;
+
+//imports pra n ter que digitar 10/xx/xxxx sempre, mas o sistema coloca as / automatica
+
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
 
 import javax.swing.JPanel;
@@ -40,7 +49,126 @@ public class MainHUD extends javax.swing.JFrame {
     private boolean inicializando;
     private java.util.List<String> fotosSelecionadas;
     
+    private TipoServicoRepositoryJson tipoServicoRepository;
+    private java.util.List<TipoServico> tiposServico;
     
+    private void configurarMascaraData() {
+
+    ((AbstractDocument) txtDataServico.getDocument())
+            .setDocumentFilter(new DocumentFilter() {
+
+        private boolean atualizando = false;
+
+        @Override
+        public void insertString(
+                FilterBypass fb,
+                int offset,
+                String string,
+                AttributeSet attr
+        ) throws BadLocationException {
+
+            replace(fb, offset, 0, string, attr);
+        }
+
+        @Override
+        public void replace(
+                FilterBypass fb,
+                int offset,
+                int length,
+                String text,
+                AttributeSet attrs
+        ) throws BadLocationException {
+
+            if (atualizando) {
+                super.replace(fb, offset, length, text, attrs);
+                return;
+            }
+
+            String textoAtual =
+                    fb.getDocument().getText(
+                            0,
+                            fb.getDocument().getLength()
+                    );
+
+            StringBuilder novoTexto =
+                    new StringBuilder(textoAtual);
+
+            novoTexto.replace(
+                    offset,
+                    offset + length,
+                    text == null ? "" : text
+            );
+
+            String apenasNumeros =
+                    novoTexto.toString().replaceAll("\\D", "");
+
+            if (apenasNumeros.length() > 8) {
+                apenasNumeros =
+                        apenasNumeros.substring(0, 8);
+            }
+
+            String textoFormatado =
+                    formatarDataDigitada(apenasNumeros);
+
+            atualizando = true;
+
+            fb.replace(
+                    0,
+                    fb.getDocument().getLength(),
+                    textoFormatado,
+                    attrs
+            );
+
+            atualizando = false;
+        }
+
+        @Override
+        public void remove(
+                FilterBypass fb,
+                int offset,
+                int length
+        ) throws BadLocationException {
+
+            replace(fb, offset, length, "", null);
+        }
+    });
+}
+
+private String formatarDataDigitada(String numeros) {
+
+    if (numeros.length() == 0) {
+        return "";
+    }
+
+    if (numeros.length() < 2) {
+        return numeros;
+    }
+
+    if (numeros.length() == 2) {
+        return numeros + "/";
+    }
+
+    if (numeros.length() < 4) {
+        return numeros.substring(0, 2)
+                + "/"
+                + numeros.substring(2);
+    }
+
+    if (numeros.length() == 4) {
+        return numeros.substring(0, 2)
+                + "/"
+                + numeros.substring(2, 4)
+                + "/";
+    }
+
+    return numeros.substring(0, 2)
+            + "/"
+            + numeros.substring(2, 4)
+            + "/"
+            + numeros.substring(4);
+}
+    
+        
     private PlanejamentoMensal getMesSelecionado(){
     
         if (jComboBoxAno.getSelectedItem() == null || jComboBoxMes.getSelectedIndex() < 0 ) {
@@ -55,6 +183,35 @@ public class MainHUD extends javax.swing.JFrame {
 
     return planejamentoService.obterMes(ano, mes);
     
+    }
+    
+    private void carregarTiposServico() {
+
+    jComboBox3.removeAllItems();
+
+    tiposServico = tipoServicoRepository.listarAtivos();
+
+    for (TipoServico tipo : tiposServico) {
+        jComboBox3.addItem(tipo.getDescricao());
+    }
+
+    jComboBox3ActionPerformed(null);
+}
+    
+    private TipoServico buscarTipoServicoPorDescricao(String descricao) {
+
+        if (descricao == null || tiposServico == null) {
+            return null;
+        }
+
+        for (TipoServico tipo : tiposServico) {
+        
+            if (tipo.getDescricao().equals(descricao)) {
+                return tipo;
+            }
+        }
+
+        return null;
     }
     
    
@@ -233,9 +390,13 @@ public class MainHUD extends javax.swing.JFrame {
 }
     
     public MainHUD() {
-inicializando = true;
+        
+    inicializando = true;
 
     initComponents();
+    
+    txtDataServico.setText("");
+    configurarMascaraData();
 
     planejamentoService = new PlanejamentoService();
     fotosSelecionadas = new java.util.ArrayList<>();
@@ -272,9 +433,9 @@ inicializando = true;
 
     jComboBox3.removeAllItems();
 
-    for (TipoServico tipo : TipoServico.values()) {
-        jComboBox3.addItem(tipo.getDescricao());
-    }
+    tipoServicoRepository = new TipoServicoRepositoryJson();
+
+    carregarTiposServico();
 
     int anoAtual = java.time.Year.now().getValue();
 
@@ -368,6 +529,7 @@ inicializando = true;
         btnAdicionarFotos = new javax.swing.JButton();
         lblFotosSelecionadas = new javax.swing.JLabel();
         btnLimparFotos = new javax.swing.JButton();
+        btnGerenciarServicos = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -491,6 +653,13 @@ inicializando = true;
             }
         });
 
+        btnGerenciarServicos.setText("Gerenciar Servicos");
+        btnGerenciarServicos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGerenciarServicosActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -508,9 +677,9 @@ inicializando = true;
                                 .addGap(388, 388, 388))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jComboBox3, 0, 206, Short.MAX_VALUE)
+                                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(146, 146, 146)
@@ -546,25 +715,27 @@ inicializando = true;
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnAdicionarFotos)
-                                .addGap(18, 18, 18)
-                                .addComponent(lblFotosSelecionadas, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnLimparFotos)
-                                .addGap(17, 17, 17))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(btnGerarRelatorioMensal)
-                                        .addGap(63, 63, 63)
-                                        .addComponent(jButton1)
-                                        .addGap(72, 72, 72))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(JBAdicionarServico)
-                                        .addGap(177, 177, 177)))
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addComponent(btnAdicionarFotos)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblFotosSelecionadas, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnLimparFotos)
+                        .addGap(17, 17, 17))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(btnGerenciarServicos)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(btnGerarRelatorioMensal)
+                                    .addGap(63, 63, 63)
+                                    .addComponent(jButton1)
+                                    .addGap(72, 72, 72))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(JBAdicionarServico)
+                                    .addGap(177, 177, 177)))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
@@ -576,7 +747,7 @@ inicializando = true;
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jComboBoxAno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
@@ -631,7 +802,8 @@ inicializando = true;
                         .addGap(42, 42, 42)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton1)
-                            .addComponent(btnGerarRelatorioMensal)))
+                            .addComponent(btnGerarRelatorioMensal)
+                            .addComponent(btnGerenciarServicos)))
                     .addComponent(panelServicos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(77, 77, 77))
         );
@@ -639,6 +811,7 @@ inicializando = true;
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
     
     
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
@@ -654,14 +827,7 @@ inicializando = true;
         return;
     }
 
-    TipoServico tipoSelecionado = null;
-
-    for (TipoServico tipo : TipoServico.values()) {
-        if (tipo.getDescricao().equals(descricaoSelecionada)) {
-            tipoSelecionado = tipo;
-            break;
-        }
-    }
+    TipoServico tipoSelecionado = buscarTipoServicoPorDescricao(descricaoSelecionada);
 
     if (tipoSelecionado == null) {
         return;
@@ -690,7 +856,7 @@ inicializando = true;
     }
 
     DateTimeFormatter formatoData =
-        DateTimeFormatter.ofPattern("dd/mm/yyyy");
+        DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     LocalDate dataServico;
 
@@ -699,7 +865,7 @@ inicializando = true;
     } catch (DateTimeParseException e) {
     javax.swing.JOptionPane.showMessageDialog(
             this,
-            "Data inválida. Use o formato dd/MM/yyyy."
+            "Data inválida. Use o formato dd/mm/yyyy."
     );
         return;
     }
@@ -822,25 +988,24 @@ inicializando = true;
         String descricaoSelecionada =
             (String) jComboBox3.getSelectedItem();
 
-    if (descricaoSelecionada == null) {
+    TipoServico tipo =
+            buscarTipoServicoPorDescricao(
+                    descricaoSelecionada
+            );
+
+    if (tipo == null) {
         return;
     }
 
-    for (TipoServico tipo : TipoServico.values()) {
-        if (tipo.getDescricao().equals(descricaoSelecionada)) {
-
-            if (tipo.getCargaHoraria() > 0) {
-                jLabel7.setText(
-                        "Carga horária: " + tipo.getCargaHoraria() + " horas"
-                );
-            } else {
-                jLabel7.setText("Carga horária: não se aplica");
-            }
-
-            break;
-        }
-    }
-        
+    if (tipo.getCargaHoraria() > 0) {
+        jLabel7.setText(
+                "Carga horária: "
+                + tipo.getCargaHoraria()
+                + " horas"
+        );
+    } else {
+        jLabel7.setText("Carga horária: não se aplica");
+    }        
     }//GEN-LAST:event_jComboBox3ActionPerformed
 
     private void jComboBoxAnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxAnoActionPerformed
@@ -989,6 +1154,21 @@ if (resultado == javax.swing.JFileChooser.APPROVE_OPTION) {
         
     }//GEN-LAST:event_btnLimparFotosActionPerformed
 
+    private void btnGerenciarServicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGerenciarServicosActionPerformed
+        
+        GerenciarServicosDialog dialog =
+            new GerenciarServicosDialog(
+                this,
+                true,
+                tipoServicoRepository
+        );
+
+        dialog.setVisible(true);
+
+        carregarTiposServico(); 
+    
+    }//GEN-LAST:event_btnGerenciarServicosActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1016,6 +1196,7 @@ if (resultado == javax.swing.JFileChooser.APPROVE_OPTION) {
     private javax.swing.JToggleButton JBAdicionarServico;
     private javax.swing.JButton btnAdicionarFotos;
     private javax.swing.JButton btnGerarRelatorioMensal;
+    private javax.swing.JToggleButton btnGerenciarServicos;
     private javax.swing.JButton btnLimparFotos;
     private javax.swing.JButton jButton1;
     private javax.swing.JComboBox<String> jComboBox3;

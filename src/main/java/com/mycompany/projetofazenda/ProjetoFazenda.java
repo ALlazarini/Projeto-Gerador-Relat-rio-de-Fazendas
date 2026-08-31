@@ -16,7 +16,7 @@ public class ProjetoFazenda {
 
         PlanejamentoMensal janeiro = planejamento.getMeses().get(0);
 
-        Servico servico = new Servico(
+        /*Servico servico = new Servico(
                 TipoServico.CIPATR,
                 "Curral",
                 "Treinamento planejado para janeiro."
@@ -31,5 +31,5 @@ public class ProjetoFazenda {
         System.out.println("Local: " + servico.getLocal());
         System.out.println("Obs: " + servico.getObservacoes());
         System.out.println("Carga horária: " + servico.getTipo().getCargaHoraria() + " horas");
-    }
+    */}
 }

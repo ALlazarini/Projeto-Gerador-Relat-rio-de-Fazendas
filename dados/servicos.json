@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "descricao": "Diagnóstico mensal",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 2,
+    "descricao": "PGR",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 3,
+    "descricao": "PCMSO",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 4,
+    "descricao": "LTCAT",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 5,
+    "descricao": "PPP",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 6,
+    "descricao": "AEP",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 7,
+    "descricao": "AET",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 8,
+    "descricao": "eSocial",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 9,
+    "descricao": "Treinamento CIPATR",
+    "cargaHoraria": 20,
+    "ativo": true
+  },
+  {
+    "id": 10,
+    "descricao": "Treinamento de Defensivos Agrícolas",
+    "cargaHoraria": 20,
+    "ativo": true
+  },
+  {
+    "id": 11,
+    "descricao": "Operação segura de máquinas e implementos",
+    "cargaHoraria": 20,
+    "ativo": true
+  },
+  {
+    "id": 12,
+    "descricao": "Máquinas autopropelidas e implementos",
+    "cargaHoraria": 24,
+    "ativo": true
+  },
+  {
+    "id": 13,
+    "descricao": "Motosserra, motopoda e similares",
+    "cargaHoraria": 8,
+    "ativo": true
+  },
+  {
+    "id": 14,
+    "descricao": "Espaço Confinado",
+    "cargaHoraria": 8,
+    "ativo": true
+  },
+  {
+    "id": 15,
+    "descricao": "Trabalho em Altura",
+    "cargaHoraria": 8,
+    "ativo": true
+  },
+  {
+    "id": 16,
+    "descricao": "NR31",
+    "cargaHoraria": 24,
+    "ativo": true
+  },
+  {
+    "id": 17,
+    "descricao": "Primeiros Socorros",
+    "cargaHoraria": 4,
+    "ativo": true
+  },
+  {
+    "id": 18,
+    "descricao": "Inspeção de Caldeira",
+    "cargaHoraria": 0,
+    "ativo": true
+  },
+  {
+    "id": 19,
+    "descricao": "Legislação",
+    "cargaHoraria": 4,
+    "ativo": true
+  },
+  {
+    "id": 20,
+    "descricao": "EPI\u0027s",
+    "cargaHoraria": 6,
+    "ativo": true
+  },
+  {
+    "id": 21,
+    "descricao": "Ergonomia",
+    "cargaHoraria": 4,
+    "ativo": true
+  },
+  {
+    "id": 22,
+    "descricao": "Elétrica - NR10",
+    "cargaHoraria": 10,
+    "ativo": true
+  },
+  {
+    "id": 23,
+    "descricao": "teste",
+    "cargaHoraria": 10,
+    "ativo": false
+  },
+  {
+    "id": 24,
+    "descricao": "nr06",
+    "cargaHoraria": 24,
+    "ativo": false
+  },
+  {
+    "id": 25,
+    "descricao": "ytvy",
+    "cargaHoraria": 0,
+    "ativo": false
+  }
+]
